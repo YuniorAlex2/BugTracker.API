@@ -17,9 +17,9 @@ public class IssuesController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public IActionResult GetAll([FromQuery] IssueQueryParametersDto queryParams)
     {
-        var issues = _issueService.GetAll()
+        var issues = _issueService.GetAll(queryParams)
             .Select(i => new IssueDto
             {
                 Id = i.Id,
@@ -39,12 +39,24 @@ public class IssuesController : ControllerBase
     [HttpGet("{id}")]
     public IActionResult GetById(int id)
     {
-        var issue = _issueService.GetAll().FirstOrDefault(i => i.Id == id);
+        var issue = _issueService.GetById(id);
 
         if (issue == null)
             return NotFound();
 
-        return Ok(issue);
+        var result = new IssueDto
+        {
+            Id = issue.Id,
+            Title = issue.Title,
+            Description = issue.Description,
+            Status = issue.Status,
+            Priority = issue.Priority,
+            CreatedAt = issue.CreatedAt,
+            ProjectId = issue.ProjectId,
+            ProjectName = issue.Project != null ? issue.Project.Name : ""
+        };
+
+        return Ok(result);
     }
 
     [HttpPost]

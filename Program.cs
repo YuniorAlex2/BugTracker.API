@@ -10,8 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer(); 
 builder.Services.AddSwaggerGen();
-builder.Services.AddSingleton<IssueService>();
-builder.Services.AddSingleton<ProjectService>();
+builder.Services.AddScoped<ProjectService>();
+builder.Services.AddScoped<IssueService>();
 builder.Services.AddControllers()
     .AddJsonOptions(options =>
     {

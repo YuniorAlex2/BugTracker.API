@@ -19,7 +19,21 @@ public class IssuesController : ControllerBase
     [HttpGet]
     public IActionResult GetAll()
     {
-        return Ok(_issueService.GetAll());
+        var issues = _issueService.GetAll()
+            .Select(i => new IssueDto
+            {
+                Id = i.Id,
+                Title = i.Title,
+                Description = i.Description,
+                Status = i.Status,
+                Priority = i.Priority,
+                CreatedAt = i.CreatedAt,
+                ProjectId = i.ProjectId,
+                ProjectName = i.Project != null ? i.Project.Name : ""
+            })
+            .ToList();
+
+        return Ok(issues);
     }
 
     [HttpGet("{id}")]

@@ -1,5 +1,6 @@
 ﻿using BugTracker.API.Data;
 using BugTracker.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.API.Services;
 
@@ -13,7 +14,9 @@ public class IssueService
     }
     public List<Issue> GetAll()
     {
-        return _context.Issues.ToList();
+        return _context.Issues
+            .Include(i => i.Project)
+            .ToList();
     }
 
     public Issue Create(Issue issue)

@@ -19,5 +19,7 @@ namespace BugTracker.API.Models
         [Required]
         public string Owner { get; set; } = string.Empty;
 
+        public List<Issue> Issues { get; set; } = new List<Issue>();
+
     }
 }

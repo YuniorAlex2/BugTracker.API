@@ -21,5 +21,7 @@ namespace BugTracker.API.Models
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public int ProjectId { get; set; }
+
+        public Project? Project { get; set; }
     }
 }

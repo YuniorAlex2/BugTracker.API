@@ -1,19 +1,25 @@
-﻿using System.ComponentModel.DataAnnotations;
-using BugTracker.API.Enums;
+﻿using BugTracker.API.Enums;
+using BugTracker.API.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace BugTracker.API.DTOs;
 
 public class CreateIssueDto
 {
     [Required]
+    [StringLength(100, MinimumLength = 3)]
     public string Title { get; set; } = string.Empty;
 
+    [StringLength(500)]
+    public string? Description { get; set; }
+
     [Required]
-    public string Description { get; set; } = string.Empty;
+    public IssueStatus Status { get; set; }
 
-    public IssueStatus Status { get; set; } = IssueStatus.Todo;
+    [Required]
+    public IssuePriority Priority { get; set; }
 
-    public IssuePriority Priority { get; set; } = IssuePriority.Medium;
-
+    [Required]
+    [Range(1, int.MaxValue, ErrorMessage = "ProjectId must be greater than 0.")]
     public int ProjectId { get; set; }
 }

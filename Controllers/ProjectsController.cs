@@ -1,6 +1,7 @@
 ﻿using BugTracker.API.DTOs;
 using BugTracker.API.Models;
 using BugTracker.API.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BugTracker.API.Controllers;
@@ -37,33 +38,47 @@ public class ProjectsController : ControllerBase
         return Ok(projects);
     }
     [HttpGet("{id}")]
-    public IActionResult GetById(int id)
+public IActionResult GetById(int id)
+{
+    var project = _projectService.GetById(id);
+
+    if (project == null)
+        return NotFound();
+
+    var result = new ProjectDto
     {
-        var project = _projectService.GetAll().FirstOrDefault(p => p.Id == id);
+        Id = project.Id,
+        Name = project.Name,
+        Description = project.Description,
+        Owner = project.Owner,
+        CreatedAt = project.CreatedAt
+    };
 
-        if (project == null)
-            return NotFound();
-
-        var result = new ProjectDto
-        {
-            Id = project.Id,
-            Name = project.Name,
-            Description = project.Description,
-            Owner = project.Owner,
-            CreatedAt = project.CreatedAt
-        };
-
-        return Ok(result);
-    }
+    return Ok(result);
+}
 
     [HttpGet("{id}/issues")]
     public IActionResult GetIssuesByProject(int id)
     {
         var projectIssues = _issueService.GetByProjectId(id);
-        return Ok(projectIssues);
+
+        var result = projectIssues.Select(i => new IssueDto
+        {
+            Id = i.Id,
+            Title = i.Title,
+            Description = i.Description,
+            Status = i.Status,
+            Priority = i.Priority,
+            CreatedAt = i.CreatedAt,
+            ProjectId = i.ProjectId,
+            ProjectName = i.Project != null ? i.Project.Name : ""
+        }).ToList();
+
+        return Ok(result);
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult Create(CreateProjectDto dto)
     {
         var project = new Project
@@ -88,6 +103,7 @@ public class ProjectsController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public IActionResult Update(int id, Project project)
     {
         var updated = _projectService.Update(id, project);
@@ -95,10 +111,20 @@ public class ProjectsController : ControllerBase
         if (updated == null)
             return NotFound();
 
-        return Ok(updated);
+        var result = new ProjectDto
+        {
+            Id = updated.Id,
+            Name = updated.Name,
+            Description = updated.Description,
+            Owner = updated.Owner,
+            CreatedAt = updated.CreatedAt
+        };
+
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public IActionResult Delete(int id)
     {
         var deleted = _projectService.Delete(id);

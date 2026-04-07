@@ -2,6 +2,8 @@
 using BugTracker.API.Models;
 using BugTracker.API.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+
 
 namespace BugTracker.API.Controllers;
 
@@ -69,6 +71,7 @@ public class IssuesController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize]
     public IActionResult Create(CreateIssueDto dto)
     {
         var issue = new Issue
@@ -90,13 +93,15 @@ public class IssuesController : ControllerBase
             Status = created.Status,
             Priority = created.Priority,
             CreatedAt = created.CreatedAt,
-            ProjectId = created.ProjectId
+            ProjectId = created.ProjectId,
+            ProjectName = created.Project != null ? created.Project.Name : ""
         };
 
         return CreatedAtAction(nameof(GetById), new { id = result.Id }, result);
     }
 
     [HttpPut("{id}")]
+    [Authorize]
     public IActionResult Update(int id, Issue issue)
     {
         var updated = _issueService.Update(id, issue);
@@ -104,10 +109,23 @@ public class IssuesController : ControllerBase
         if (updated == null)
             return NotFound();
 
-        return Ok(updated);
+        var result = new IssueDto
+        {
+            Id = updated.Id,
+            Title = updated.Title,
+            Description = updated.Description,
+            Status = updated.Status,
+            Priority = updated.Priority,
+            CreatedAt = updated.CreatedAt,
+            ProjectId = updated.ProjectId,
+            ProjectName = updated.Project != null ? updated.Project.Name : ""
+        };
+
+        return Ok(result);
     }
 
     [HttpDelete("{id}")]
+    [Authorize]
     public IActionResult Delete(int id)
     {
         var deleted = _issueService.Delete(id);

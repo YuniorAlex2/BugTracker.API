@@ -71,12 +71,16 @@ public class IssueService
     {
         _context.Issues.Add(issue);
         _context.SaveChanges();
-        return issue;
+
+        return _context.Issues
+            .Include(i => i.Project)
+            .First(i => i.Id == issue.Id);
     }
 
     public List<Issue> GetByProjectId(int projectId)
     {
         return _context.Issues
+            .Include(i => i.Project)
             .Where(i => i.ProjectId == projectId)
             .ToList();
     }
@@ -96,7 +100,9 @@ public class IssueService
 
         _context.SaveChanges();
 
-        return existing;
+        return _context.Issues
+            .Include(i => i.Project)
+            .FirstOrDefault(i => i.Id == id);
     }
 
     public bool Delete(int id)

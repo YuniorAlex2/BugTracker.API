@@ -1,5 +1,6 @@
 ﻿using BugTracker.API.Data;
 using BugTracker.API.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BugTracker.API.Services
 {
@@ -11,21 +12,29 @@ namespace BugTracker.API.Services
         {
             _context = context;
         }
+
         public List<Project> GetAll()
         {
-            return _context.Projects.ToList();
+            return _context.Projects
+                .Include(p => p.Issues)
+                .ToList();
         }
 
         public Project? GetById(int id)
         {
-            return _context.Projects.FirstOrDefault(p => p.Id == id);
+            return _context.Projects
+                .Include(p => p.Issues)
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public Project Create(Project project)
         {
-             _context.Projects.Add(project);
-             _context.SaveChanges();
-            return project;
+            _context.Projects.Add(project);
+            _context.SaveChanges();
+
+            return _context.Projects
+                .Include(p => p.Issues)
+                .First(p => p.Id == project.Id);
         }
 
         public Project? Update(int id, Project updatedProject)
@@ -41,7 +50,9 @@ namespace BugTracker.API.Services
 
             _context.SaveChanges();
 
-            return existing;
+            return _context.Projects
+                .Include(p => p.Issues)
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public bool Delete(int id)

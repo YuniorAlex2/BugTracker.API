@@ -14,7 +14,7 @@ public class IssueService
         _context = context;
     }
 
-    public List<Issue> GetAll(IssueQueryParametersDto queryParams)
+    public (List<Issue> Issues, int TotalCount) GetAll(IssueQueryParametersDto queryParams)
     {
         var query = _context.Issues
             .Include(i => i.Project)
@@ -50,11 +50,14 @@ public class IssueService
         if (queryParams.PageSize < 1)
             queryParams.PageSize = 10;
 
-        query = query
-            .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
-            .Take(queryParams.PageSize);
+        var totalCount = query.Count();
 
-        return query.ToList();
+        var issues = query
+            .Skip((queryParams.PageNumber - 1) * queryParams.PageSize)
+            .Take(queryParams.PageSize)
+            .ToList();
+
+        return (issues, totalCount);
     }
 
     public Issue? GetById(int id)

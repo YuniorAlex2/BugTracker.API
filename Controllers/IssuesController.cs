@@ -19,21 +19,30 @@ public class IssuesController : ControllerBase
     [HttpGet]
     public IActionResult GetAll([FromQuery] IssueQueryParametersDto queryParams)
     {
-        var issues = _issueService.GetAll(queryParams)
-            .Select(i => new IssueDto
-            {
-                Id = i.Id,
-                Title = i.Title,
-                Description = i.Description,
-                Status = i.Status,
-                Priority = i.Priority,
-                CreatedAt = i.CreatedAt,
-                ProjectId = i.ProjectId,
-                ProjectName = i.Project != null ? i.Project.Name : ""
-            })
-            .ToList();
+        var (issues, totalCount) = _issueService.GetAll(queryParams);
 
-        return Ok(issues);
+        var issueDtos = issues.Select(i => new IssueDto
+        {
+            Id = i.Id,
+            Title = i.Title,
+            Description = i.Description,
+            Status = i.Status,
+            Priority = i.Priority,
+            CreatedAt = i.CreatedAt,
+            ProjectId = i.ProjectId,
+            ProjectName = i.Project != null ? i.Project.Name : ""
+        }).ToList();
+
+        var result = new PagedResultDto<IssueDto>
+        {
+            Data = issueDtos,
+            PageNumber = queryParams.PageNumber,
+            PageSize = queryParams.PageSize,
+            TotalCount = totalCount,
+            TotalPages = (int)Math.Ceiling((double)totalCount / queryParams.PageSize)
+        };
+
+        return Ok(result);
     }
 
     [HttpGet("{id}")]

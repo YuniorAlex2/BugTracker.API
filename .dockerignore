@@ -3,6 +3,4 @@ obj/
 .git/
 .vs/
 .vscode/
-Dockerfile
-docker-compose*
 README.md
